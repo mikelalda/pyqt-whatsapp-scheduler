@@ -61,7 +61,7 @@ Sigue estos pasos:
 
 2. Genera el ejecutable:
    ```
-   pyinstaller --onefile --windowed src/main.py
+   pyinstaller --onefile --windowed --noconsole src/main.py
    ```
 
    El ejecutable se generará en la carpeta `dist`.
