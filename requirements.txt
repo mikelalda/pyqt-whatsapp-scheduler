@@ -1,0 +1,5 @@
+PyQt5
+schedule
+requests
+python-dotenv
+pywhatkit
