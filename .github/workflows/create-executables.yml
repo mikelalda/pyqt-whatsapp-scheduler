@@ -25,7 +25,14 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller --onefile --windowed src/main.py
+          cd src
+          # Ensure the main.py is executable
+          chmod +x main.py 
+          pyinstaller --onefile --windowed main.py
+      - name: Create shortcut in dist directory
+        run: |
+          mkdir -p dist
+          copy /Y $(pwd)\dist\src\main.exe $(pwd)\..\main.exe
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -52,7 +59,14 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller --onefile --windowed src/main.py
+          cd src
+          # Ensure the main.py is executable
+          chmod +x main.py
+          pyinstaller --windowed main.py
+      - name: Create shortcut to executable in dist directory
+        run: |
+          mkdir -p dist
+          ln -s $(pwd)/dist/src/main.app/Contents/MacOS/main $(pwd)/../main
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -79,7 +93,14 @@ jobs:
 
       - name: Build executable with PyInstaller
         run: |
-          pyinstaller --onefile --windowed src/main.py
+          cd src
+          # Ensure the main.py is executable
+          chmod +x main.py
+          pyinstaller --onefile main.py
+      - name: Create shortcut to executable in dist directory
+        run: |
+          mkdir -p dist
+          ln -s $(pwd)/dist/src/main $(pwd)/../main
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
