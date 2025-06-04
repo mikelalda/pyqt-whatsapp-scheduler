@@ -89,3 +89,30 @@ jobs:
         with:
           name: main-exe-linux
           path: src/dist
+
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: main-exe-windows
+          path: ./release/windows
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: main-exe-macos
+          path: ./release/macos
+
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: main-exe-linux
+          path: ./release/linux
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
