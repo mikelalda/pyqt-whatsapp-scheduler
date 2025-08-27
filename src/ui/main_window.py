@@ -10,6 +10,7 @@ from ui.edit_dialog import EditDialog
 import pyautogui
 import time
 import os
+from utils.helpers import send_document
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -40,16 +41,16 @@ class MainWindow(QMainWindow):
         self.layout.addWidget(self.message_input)
 
         self.file_layout = QHBoxLayout()
-        self.select_file_button = QPushButton("Select Image")
+        self.select_file_button = QPushButton("Select File")
         self.select_file_button.clicked.connect(self.select_file)
         self.file_layout.addWidget(self.select_file_button)
 
-        self.clear_file_button = QPushButton("Clear Image")
+        self.clear_file_button = QPushButton("Clear File")
         self.clear_file_button.clicked.connect(self.clear_file)
         self.file_layout.addWidget(self.clear_file_button)
         self.layout.addLayout(self.file_layout)
 
-        self.file_path_label = QLabel("No image selected.")
+        self.file_path_label = QLabel("No file selected.")
         self.layout.addWidget(self.file_path_label)
 
         self.schedule_label = QLabel("Schedule Time:")
@@ -87,14 +88,14 @@ class MainWindow(QMainWindow):
 
     def select_file(self):
         # Filtramos para que solo se puedan seleccionar imágenes
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Image to Send", "", "Images (*.png *.jpg *.jpeg *.bmp)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select File to Send", "")
         if file_name:
             self.file_path = file_name
-            self.file_path_label.setText(f"Image: {os.path.basename(file_name)}")
+            self.file_path_label.setText(f"File: {os.path.basename(file_name)}")
 
     def clear_file(self):
         self.file_path = None
-        self.file_path_label.setText("No image selected.")
+        self.file_path_label.setText("No file selected.")
 
     def schedule_message(self):
         phone = self.phone_input.text()
@@ -102,7 +103,7 @@ class MainWindow(QMainWindow):
         schedule_time = self.schedule_input.dateTime()
 
         if not phone or (not message and not self.file_path):
-            QMessageBox.warning(self, "Input Error", "Please provide a phone number and either a message or an image.")
+            QMessageBox.warning(self, "Input Error", "Please provide a phone number and either a message or an file.")
             return
 
         # Pasa el file_path al scheduler
@@ -117,7 +118,7 @@ class MainWindow(QMainWindow):
             status = "SENT" if msg.get('sent', False) else "PENDING"
             file_info = ""
             if msg.get('file_path'):
-                file_info = f" [Image: {os.path.basename(msg['file_path'])}]"
+                file_info = f" [File: {os.path.basename(msg['file_path'])}]"
             self.scheduled_list.addItem(f"{msg['user']} -- {msg['message'].replace(chr(10), ' ')}{file_info} -- at {msg['time']} [{status}]")
             
     def on_message_selected(self):
@@ -131,7 +132,7 @@ class MainWindow(QMainWindow):
                 self.schedule_input.setDateTime(dt)
             if msg.get('file_path'):
                 self.file_path = msg.get('file_path')
-                self.file_path_label.setText(f"Image: {os.path.basename(self.file_path)}")
+                self.file_path_label.setText(f"File: {os.path.basename(self.file_path)}")
             else:
                 self.clear_file()
 
@@ -152,8 +153,8 @@ class MainWindow(QMainWindow):
             msg = self.scheduler.get_scheduled_messages()[self.selected_index]
             dialog = EditDialog(msg['user'], msg['message'], msg['time'], msg['file_path'], self)
             if dialog.exec_():
-                phone, message, schedule_time = dialog.get_values()
-                self.scheduler.edit_message(self.selected_index, phone, message, schedule_time)
+                phone, message, schedule_time, file_path = dialog.get_values()
+                self.scheduler.edit_message(self.selected_index, phone, message, schedule_time,file_path)
                 self.refresh_scheduled_list()
                 QMessageBox.information(self, "Message Edited", "Scheduled message updated.")
         else:
@@ -170,9 +171,8 @@ class MainWindow(QMainWindow):
                 if scheduled_time <= now:
                     try:
                         file_path = msg.get('file_path')
-                        
-                        # Si hay una ruta de archivo, usamos la función con pyautogui
-                        if file_path:
+                        # Checkea si la ruta de archivo termina en una extensión de imagen válida
+                        if file_path and any(file_path.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.bmp']):
                             pywhatkit.sendwhats_image(
                                 msg['user'],
                                 file_path,
@@ -181,11 +181,18 @@ class MainWindow(QMainWindow):
                                 tab_close=True
                             )
                         # Si no hay archivo, usamos la lógica original para texto
-                        else:
+                        elif file_path == None:
                             pywhatkit.sendwhatmsg_instantly(
                                 msg['user'],
                                 msg['message'],
                                 wait_time=15,
+                                tab_close=True
+                            )
+                        else:
+                            send_document(
+                                msg['user'],
+                                file_path,
+                                msg['message'],
                                 tab_close=True
                             )
                         # Espera un poco para que el mensaje se escriba

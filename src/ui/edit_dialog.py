@@ -29,7 +29,7 @@ class EditDialog(QDialog):
         self.time_input.setDateTime(QDateTime.fromString(time))
         layout.addWidget(self.time_input)
 
-        self.file_label = QLabel("Attached Image:")
+        self.file_label = QLabel("Attached File:")
         layout.addWidget(self.file_label)
         
         self.file_path_label = QLabel()
@@ -37,11 +37,11 @@ class EditDialog(QDialog):
         layout.addWidget(self.file_path_label)
 
         file_button_layout = QHBoxLayout()
-        self.select_file_button = QPushButton("Select New Image")
+        self.select_file_button = QPushButton("Select New File")
         self.select_file_button.clicked.connect(self.select_file)
         file_button_layout.addWidget(self.select_file_button)
 
-        self.clear_file_button = QPushButton("Clear Image")
+        self.clear_file_button = QPushButton("Clear File")
         self.clear_file_button.clicked.connect(self.clear_file)
         file_button_layout.addWidget(self.clear_file_button)
         
@@ -52,7 +52,7 @@ class EditDialog(QDialog):
         layout.addWidget(self.save_button)
 
     def select_file(self):
-        file_name, _ = QFileDialog.getOpenFileName(self, "Select Image", "", "Images (*.png *.jpg *.jpeg)")
+        file_name, _ = QFileDialog.getOpenFileName(self, "Select File", "All Files (*)")
         if file_name:
             self.file_path = file_name
             self.update_file_label()
@@ -65,7 +65,7 @@ class EditDialog(QDialog):
         if self.file_path:
             self.file_path_label.setText(f"Current: {os.path.basename(self.file_path)}")
         else:
-            self.file_path_label.setText("No image selected.")
+            self.file_path_label.setText("No file selected.")
 
     def get_values(self):
         return (
