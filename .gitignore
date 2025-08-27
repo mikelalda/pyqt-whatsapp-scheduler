@@ -1,3 +1,5 @@
 /.venv
 /build
 /dist
+main.spec
+PyWhatKit_DB.txt

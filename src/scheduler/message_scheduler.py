@@ -1,15 +1,13 @@
-from datetime import datetime
-
-
 class MessageScheduler:
     def __init__(self):
         self.scheduled_messages = []
 
-    def schedule_message(self, user, message, time):
+    def schedule_message(self, user, message, time, file_path=None):
         self.scheduled_messages.append({
             'user': user,
-            'message': message,
+            'message': message, # Este será el pie de foto (caption)
             'time': time,
+            'file_path': file_path, # NUEVO
             'sent': False
         })
 
@@ -23,13 +21,14 @@ class MessageScheduler:
         if 0 <= index < len(self.scheduled_messages):
             del self.scheduled_messages[index]
 
-    def edit_message(self, index, user, message, time):
+    def edit_message(self, index, user, message, time, file_path=None):
         if 0 <= index < len(self.scheduled_messages):
             self.scheduled_messages[index].update({
                 'user': user,
                 'message': message,
                 'time': time,
-                'sent': False
+                'file_path': file_path, # NUEVO
+                'sent': False # Se resetea el estado a no enviado al editar
             })
 
     def mark_as_sent(self, index):
