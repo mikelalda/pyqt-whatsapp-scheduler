@@ -191,7 +191,6 @@ class MainWindow(QMainWindow):
                         # Espera un poco para que el mensaje se escriba
                         time.sleep(5)
                         # Pulsa Enter para enviar el mensaje
-                        print("Pressing Enter to send the message...")
                         pyautogui.press('enter')
 
                         self.scheduler.mark_as_sent(idx)
